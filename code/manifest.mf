@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+OpenIDE-Module: moduleIdDE/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Install: moduleIdDE/Installer.class
+OpenIDE-Module-Layer: moduleIdDE/layer.xml
+OpenIDE-Module-Localizing-Bundle: moduleIdDE/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+

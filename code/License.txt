@@ -1,0 +1,7 @@
+No warranties at all. You may (and probably will) find some bugs... :-)
+Use this software at your own risk.
+
+Please contact the author and give him some feedback.
+
+Vilson Cristiano Gärtner
+vilson@gartner.net.br

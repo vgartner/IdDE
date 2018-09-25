@@ -1,0 +1,12 @@
+
+- Criar código do protocolo, indicando que, no computador, o arquivo já está numa sessão.
+- verificar as mensagens de resposta da solicitação de ramal SIP e números de telefone. Apresentar mensagem se não tiver.
+- criar o código 10 do protocolo, que e utilizado nas respostas em que não está configurado
+o número de SIP ou telefone
+- tela com as tarefas do usuário local
+- resposta com as tarefas do usuário remoto
+- no caso das tarefas, mudar as respostas para utilizar o protocolo IdDE e não mensagens de chat
+- funcionalidades da agenda (enviar, gravar, listar...)
+- quando um arquivo é fechado ou sai do netbeans, tem que avisar demais presentes na sessão
+- log das mensagens de chat
+- sair de todas as sessões, quando o netbeans é fechado (Installer.java)

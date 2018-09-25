@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC
+"-//NetBeans//DTD annotation type 1.1//EN"
+"http://www.netbeans.org/dtds/annotation-type-1_1.dtd">
+
+<type name="moduleIdDECaretPos"
+      description_key="IdDE_CaretPosAnnotation"
+      localizing_bundle="moduleIdDe.Bundle"
+      visible="true"
+      glyph="nbresloc:moduleIdDE/idde_caret_pos_ann1.png"
+      highlight="#E6A9EC"
+      type="line"
+      browseable="false"
+      severity="ok"
+      use_custom_sidebar_color="true"
+      custom_sidebar_color="#E6A9EC"
+/>

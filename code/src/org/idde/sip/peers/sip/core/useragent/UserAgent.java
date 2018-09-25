@@ -1,0 +1,339 @@
+/*
+    This file is part of Peers, a java SIP softphone.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    
+    Copyright 2007, 2008, 2009, 2010 Yohann Martineau 
+*/
+
+package org.idde.sip.peers.sip.core.useragent;
+
+import java.io.File;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.idde.sip.peers.Config;
+import org.idde.sip.peers.Logger;
+import org.idde.sip.peers.XmlConfig;
+import org.idde.sip.peers.media.Echo;
+import org.idde.sip.peers.media.MediaManager;
+import org.idde.sip.peers.media.MediaMode;
+import org.idde.sip.peers.media.SoundManager;
+import org.idde.sip.peers.sdp.SDPManager;
+import org.idde.sip.peers.sip.Utils;
+import org.idde.sip.peers.sip.core.useragent.handlers.ByeHandler;
+import org.idde.sip.peers.sip.core.useragent.handlers.CancelHandler;
+import org.idde.sip.peers.sip.core.useragent.handlers.InviteHandler;
+import org.idde.sip.peers.sip.core.useragent.handlers.OptionsHandler;
+import org.idde.sip.peers.sip.core.useragent.handlers.RegisterHandler;
+import org.idde.sip.peers.sip.syntaxencoding.SipURI;
+import org.idde.sip.peers.sip.transaction.Transaction;
+import org.idde.sip.peers.sip.transaction.TransactionManager;
+import org.idde.sip.peers.sip.transactionuser.DialogManager;
+import org.idde.sip.peers.sip.transport.SipMessage;
+import org.idde.sip.peers.sip.transport.SipRequest;
+import org.idde.sip.peers.sip.transport.SipResponse;
+import org.idde.sip.peers.sip.transport.TransportManager;
+
+
+public class UserAgent {
+
+    public final static String CONFIG_FILE = "conf" + File.separator + "peers.xml";
+    public final static int RTP_DEFAULT_PORT = 8000;
+
+    private String peersHome;
+    private Logger logger;
+    private Config config;
+    
+    private List<String> peers;
+    //private List<Dialog> dialogs;
+    
+    //TODO factorize echo and captureRtpSender
+    private Echo echo;
+    
+    private UAC uac;
+    private UAS uas;
+
+    private ChallengeManager challengeManager;
+    
+    private DialogManager dialogManager;
+    private TransactionManager transactionManager;
+    private TransportManager transportManager;
+
+    private int cseqCounter;
+    private SipListener sipListener;
+    
+    private SDPManager sdpManager;
+    private SoundManager soundManager;
+    private MediaManager mediaManager;
+
+    public UserAgent(SipListener sipListener, String peersHome,
+            Logger logger) throws SocketException {
+        this.sipListener = sipListener;
+        this.peersHome = Utils.DEFAULT_PEERS_HOME;
+
+        if (logger == null) {
+            logger = org.idde.util.Util.getPeersLogger();
+        } else {
+            this.logger = logger;
+        }
+
+        config = org.idde.util.Util.getSIPConfig() ;
+
+        cseqCounter = 1;
+        
+        StringBuffer buf = new StringBuffer();
+        buf.append("starting user agent [");
+        buf.append("myAddress: ");
+        buf.append(config.getLocalInetAddress().getHostAddress()).append(", ");
+        buf.append("sipPort: ");
+        buf.append(config.getSipPort()).append(", ");
+        buf.append("userpart: ");
+        buf.append(config.getUserPart()).append(", ");
+        buf.append("domain: ");
+        buf.append(config.getDomain()).append("]");
+        logger.info(buf.toString());
+
+        //transaction user
+        
+        dialogManager = new DialogManager(logger);
+        
+        //transaction
+        
+        transactionManager = new TransactionManager(logger);
+        
+        //transport
+        
+        transportManager = new TransportManager(transactionManager, config,
+                logger);
+        
+        transactionManager.setTransportManager(transportManager);
+        
+        //core
+        
+        InviteHandler inviteHandler = new InviteHandler(this,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+        CancelHandler cancelHandler = new CancelHandler(this,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+        ByeHandler byeHandler = new ByeHandler(this,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+        OptionsHandler optionsHandler = new OptionsHandler(this,
+                transactionManager,
+                transportManager,
+                logger);
+        RegisterHandler registerHandler = new RegisterHandler(this,
+                transactionManager,
+                transportManager,
+                logger);
+        
+        InitialRequestManager initialRequestManager =
+            new InitialRequestManager(
+                this,
+                inviteHandler,
+                cancelHandler,
+                byeHandler,
+                optionsHandler,
+                registerHandler,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+        MidDialogRequestManager midDialogRequestManager =
+            new MidDialogRequestManager(
+                this,
+                inviteHandler,
+                cancelHandler,
+                byeHandler,
+                optionsHandler,
+                registerHandler,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+        
+        uas = new UAS(this,
+                initialRequestManager,
+                midDialogRequestManager,
+                dialogManager,
+                transactionManager,
+                transportManager);
+        uac = new UAC(this,
+                initialRequestManager,
+                midDialogRequestManager,
+                dialogManager,
+                transactionManager,
+                transportManager,
+                logger);
+
+        challengeManager = new ChallengeManager(config,
+                initialRequestManager,
+                logger);
+        registerHandler.setChallengeManager(challengeManager);
+        inviteHandler.setChallengeManager(challengeManager);
+
+        peers = new ArrayList<String>();
+        //dialogs = new ArrayList<Dialog>();
+
+        sdpManager = new SDPManager(this, logger);
+        inviteHandler.setSdpManager(sdpManager);
+        optionsHandler.setSdpManager(sdpManager);
+        soundManager = new SoundManager(config.isMediaDebug(), logger,
+                this.peersHome);
+        mediaManager = new MediaManager(this, logger);
+    }
+
+    public void close() {
+        transportManager.closeTransports();
+        config.setPublicInetAddress(null);
+    }
+
+    /**
+     * Gives the sipMessage if sipMessage is a SipRequest or 
+     * the SipRequest corresponding to the SipResponse
+     * if sipMessage is a SipResponse
+     * @param sipMessage
+     * @return null if sipMessage is neither a SipRequest neither a SipResponse
+     */
+    public SipRequest getSipRequest(SipMessage sipMessage) {
+        if (sipMessage instanceof SipRequest) {
+            return (SipRequest) sipMessage;
+        } else if (sipMessage instanceof SipResponse) {
+            SipResponse sipResponse = (SipResponse) sipMessage;
+            Transaction transaction = (Transaction)transactionManager
+                .getClientTransaction(sipResponse);
+            if (transaction == null) {
+                transaction = (Transaction)transactionManager
+                    .getServerTransaction(sipResponse);
+            }
+            if (transaction == null) {
+                return null;
+            }
+            return transaction.getRequest();
+        } else {
+            return null;
+        }
+    }
+    
+//    public List<Dialog> getDialogs() {
+//        return dialogs;
+//    }
+
+    public List<String> getPeers() {
+        return peers;
+    }
+
+//    public Dialog getDialog(String peer) {
+//        for (Dialog dialog : dialogs) {
+//            String remoteUri = dialog.getRemoteUri();
+//            if (remoteUri != null) {
+//                if (remoteUri.contains(peer)) {
+//                    return dialog;
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
+    public String generateCSeq(String method) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(cseqCounter++);
+        buf.append(' ');
+        buf.append(method);
+        return buf.toString();
+    }
+    
+    public boolean isRegistered() {
+        return uac.getInitialRequestManager().getRegisterHandler()
+            .isRegistered();
+    }
+
+    public UAS getUas() {
+        return uas;
+    }
+
+    public UAC getUac() {
+        return uac;
+    }
+
+    public DialogManager getDialogManager() {
+        return dialogManager;
+    }
+    
+    public int getSipPort() {
+        return config.getSipPort();
+    }
+
+    public int getRtpPort() {
+        return config.getRtpPort();
+    }
+
+    public String getDomain() {
+        return config.getDomain();
+    }
+
+    public String getUserpart() {
+        return config.getUserPart();
+    }
+
+    public MediaMode getMediaMode() {
+        return config.getMediaMode();
+    }
+
+    public boolean isMediaDebug() {
+        return config.isMediaDebug();
+    }
+
+    public SipURI getOutboundProxy() {
+        return config.getOutboundProxy();
+    }
+
+    public Echo getEcho() {
+        return echo;
+    }
+
+    public void setEcho(Echo echo) {
+        this.echo = echo;
+    }
+
+    public SipListener getSipListener() {
+        return sipListener;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
+
+    public MediaManager getMediaManager() {
+        return mediaManager;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public String getPeersHome() {
+        return peersHome;
+    }
+
+}

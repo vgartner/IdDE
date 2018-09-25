@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="moduleIdDE-iddeAction.instance">
+                <attr name="component" methodvalue="moduleIdDE.iddeTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="moduleIdDE.Bundle#CTL_iddeAction"/>
+                <attr name="iconBase" stringvalue="moduleIdDE/idde_check.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+            <file name="moduleIdDE-SessionAction.instance">
+                <attr name="component" methodvalue="moduleIdDE.SessionTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="moduleIdDE.Bundle#CTL_SessionAction"/>
+                <attr name="iconBase" stringvalue="moduleIdDE/sessionWindowIcon.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="SessionAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/moduleIdDE-SessionAction.instance"/>
+            </file>
+            <file name="iddeAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/moduleIdDE-iddeAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="SessionTopComponent.settings" url="SessionTopComponentSettings.xml"/>
+            <file name="iddeTopComponent.settings" url="iddeTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="bottomSlidingSide">
+                <file name="SessionTopComponent.wstcref" url="SessionTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="rightSlidingSide">
+                <file name="iddeTopComponent.wstcref" url="iddeTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <file name="moduleIdDE-MarkOccurrencesHighlightsLayerFactory.instance"/>
+            </folder>
+            <folder name="x-php5">
+                <file name="moduleIdDE-MarkOccurrencesHighlightsLayerFactory.instance"/>
+            </folder>
+            <folder name="x-jsp">
+                <file name="moduleIdDE-MarkOccurrencesHighlightsLayerFactory.instance"/>
+            </folder>
+            <folder name="javascript">
+                <file name="moduleIdDE-MarkOccurrencesHighlightsLayerFactory.instance"/>
+            </folder>
+            <folder name="html">
+                <file name="moduleIdDE-MarkOccurrencesHighlightsLayerFactory.instance"/>
+            </folder>
+        </folder>
+        <folder name="AnnotationTypes">
+            <file name="moduleIdDE.xml" url="IdDEAnnotation.xml"></file>
+            <file name="moduleIdDECaretPos.xml" url="IdDECaretPosAnnotation.xml"></file>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,68 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.idde.common.transport;
+
+/**
+ *
+ * @author vilson
+ */
+public class Message
+{
+    // This constants are used to indicate the requests types
+    // Asked to start a new sharing edition
+    public static Integer START_SHARING_FILE = 0;
+    // Asking to update the text
+    public static Integer UPDATE_SHARED_TEXT = 1;
+    // Wants to send a file
+    public static Integer SEND_FILE = 2;
+
+    // analisa a solicitacao recebida
+    public boolean analiseRequest(String message)
+    {
+        return true;
+    }
+
+    public void updateEditingText(String fileName, String text, Integer line, Integer col)
+    {
+
+    }
+
+    // Primeira mensagem -> pedir para iniciar compartilhamento
+    public boolean askStartSharingFile()
+    {
+        return true;
+    }
+
+    public boolean sendAllText(String text)
+    {
+        return true;
+    }
+
+    public boolean sendTextChanges(String text, Integer line, Integer col)
+    {
+        return true;
+    }
+
+    public boolean sentFile(String fileName)
+    {
+        return true;
+    }
+
+    public String obtainUserSIP()
+    {
+        return " ";
+    }
+
+    public String obtainUserMobile()
+    {
+        return " ";
+    }
+
+    public String obtainUserLandLine()
+    {
+        return " ";
+    }
+
+}

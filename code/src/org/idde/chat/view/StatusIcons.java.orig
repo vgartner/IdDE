@@ -1,0 +1,58 @@
+/**
+ * MainPanel
+ *
+ * \b Package: \n
+ * org.idde.chat.view
+ *
+ * @see org.idde.chat
+ * @see org.idde.chat.view
+ *
+ * @since Class created on 04/10/2010
+ *
+ * @author Vilson Cristiano Gartner [vgartner@gmail.com]
+ *
+ * \b Maintainers: \n
+ * Vilson Cristiano Gartner [vgartner@gmail.com]
+ *
+ * \b License: \n
+ * Licensed under BSD License {@link http://www.opensource.org/licenses/bsd-license.php}
+ * Many ideas and code are based on shortalk {@link http://code.google.com/p/shortalk/}
+ *
+ * @version $Id$
+ */
+
+package org.idde.chat.view;
+
+import javax.swing.ImageIcon;
+import org.idde.util.Logger;
+import org.idde.util.ResourceManager;
+import org.idde.util.Util;
+
+public class StatusIcons {
+
+	public static final ImageIcon ICON_AVAILABLE;
+	public static final ImageIcon ICON_UNAVAILABLE;
+	public static final ImageIcon ICON_BUSY;
+	public static final ImageIcon ICON_AWAY;
+	public static final ImageIcon ICON_GREEN;
+        public static final ImageIcon ICON_YELLOW;
+	public static final ImageIcon ICON_RED;
+	public static final ImageIcon ICON_EXPAND;
+	public static final ImageIcon ICON_COLLAPSE;
+	
+	static {
+		//Load ressources
+		Logger.getLogger(new StatusIcons()).debug("Resources: loading status icons ...");
+
+		ICON_AVAILABLE  = new ResourceManager().getChatIcon("available.png");
+		ICON_UNAVAILABLE = new ResourceManager().getChatIcon("unavailable.png");
+		ICON_BUSY = new ResourceManager().getChatIcon("busy.png");
+		ICON_AWAY = new ResourceManager().getChatIcon("absent.png");
+		ICON_GREEN = new ResourceManager().getChatIcon("green.png");
+                ICON_YELLOW = new ResourceManager().getChatIcon("yellow.png");
+                ICON_RED = new ResourceManager().getChatIcon("red.png");
+		ICON_EXPAND = new ResourceManager().getChatIcon("expand.png");
+		ICON_COLLAPSE = new ResourceManager().getChatIcon("collapse.png");
+	}
+		
+}
